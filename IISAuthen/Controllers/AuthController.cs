@@ -1,6 +1,7 @@
 using IISAuthen.Models;
 using IISAuthen.Services;
 using IISAuthen.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IISAuthen.Controllers
@@ -10,9 +11,12 @@ namespace IISAuthen.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthenService _authService;
-        public AuthController(IAuthenService authService)
+        private readonly ILogger<AuthController> _logger;
+
+        public AuthController(IAuthenService authService, ILogger<AuthController> logger)
         {
             _authService = authService;
+            _logger = logger;
         }
 
         [HttpPost("login")]
