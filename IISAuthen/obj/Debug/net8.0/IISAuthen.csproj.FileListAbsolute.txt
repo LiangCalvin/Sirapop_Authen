@@ -119,4 +119,3 @@
 /Users/aliang/Desktop/ALIANG/02 - My Learning/38 - Angular/IISAuthen/IISAuthen/obj/Debug/net8.0/IISAuthen.genruntimeconfig.cache
 /Users/aliang/Desktop/ALIANG/02 - My Learning/38 - Angular/IISAuthen/IISAuthen/obj/Debug/net8.0/ref/IISAuthen.dll
 /Users/aliang/Desktop/ALIANG/02 - My Learning/38 - Angular/IISAuthen/IISAuthen/bin/Debug/net8.0/BCrypt.Net-Next.dll
-/Users/aliang/Desktop/ALIANG/02 - My Learning/38 - Angular/IISAuthen/IISAuthen/obj/Debug/net8.0/IISAuthen.sourcelink.json
