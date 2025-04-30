@@ -1,9 +1,15 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using IISAuthen.Data;
+using IISAuthen.Helpers;
+using IISAuthen.Models.AppSettingConnectionStrings.cs;
+using IISAuthen.Repositories;
+using IISAuthen.Repositories.Interface;
 using IISAuthen.Services;
 using IISAuthen.Services.Interface;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -29,6 +35,14 @@ builder.Services.AddCors(options =>
         });
 });
 
+// Connection
+builder.Services.Configure<AppSettingConnectionStrings>(builder.Configuration.GetSection("ConnectionStrings"));
+var sqlServerIisAuthenDB = builder.Configuration.GetConnectionString("IISAuthenDB");
+var connectionIISAuthenDB = SaapClient.GetConnection(sqlServerIisAuthenDB!);
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseMySql(connectionIISAuthenDB, new MySqlServerVersion(new Version(8, 0, 21)))
+);
 // 4. Add Authentication
 builder.Services.AddAuthentication(options =>
 {
@@ -90,6 +104,7 @@ builder.Services.AddControllers();
 
 // 7. Add your service
 builder.Services.AddScoped<IAuthenService, AuthService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 // 8. Swagger
 builder.Services.AddEndpointsApiExplorer();

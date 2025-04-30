@@ -1,6 +1,9 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using IISAuthen.Models;
+using IISAuthen.Models.Auth;
+using IISAuthen.Models.UserRegister;
 using IISAuthen.Repositories.Interface;
 using IISAuthen.Services.Interface;
 using Microsoft.IdentityModel.Tokens;
@@ -23,39 +26,59 @@ namespace IISAuthen.Services
         {
             // Example: replace with DB check later
             var user = await _userRepository.GetUserByUsernameAsync(username);
-            if (user == null || user.Password != password)
+            if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.Password))
                 return null;
-
-            if (username != "admin" || password != "password")
-                return null;
-
-            var jwtKey = _configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is not configured.");
-            var key = Encoding.UTF8.GetBytes(jwtKey);
-            // Create claims specifically using ClaimTypes constants for standard claims
             var claims = new List<Claim>
             {
-                // This is the important one - use ClaimTypes.Name for the Name claim
-                new Claim(ClaimTypes.Name, username),
-                // Add some additional claims for demonstration
-                new Claim(ClaimTypes.NameIdentifier, username),
-                new Claim("userId", "1"),
-                new Claim(ClaimTypes.Role, "User")
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim("userId", user.UserId.ToString()),
+                new Claim(ClaimTypes.Role, user.Role)
             };
-            var identity = new ClaimsIdentity(claims, "Bearer");
-            var principal = new ClaimsPrincipal(identity);
+
+            var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!);
+            var creds = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature);
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = identity,
+                Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddHours(24),
-                SigningCredentials = new SigningCredentials(
-            new SymmetricSecurityKey(key),
-            SecurityAlgorithms.HmacSha256Signature)
+                SigningCredentials = creds
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
+        }
+
+        public async Task<bool> RegisterAsync(UserRegisterDto dto)
+        {
+            var existingUser = await _userRepository.GetUserByUsernameAsync(dto.Username);
+            if (existingUser != null) return false;
+
+            var user = new User
+            {
+                Username = dto.Username,
+                Password = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+                Role = "User"
+            };
+
+            await _userRepository.AddUserAsync(user);
+            return true;
+        }
+
+        public UserProfile UserProfile()
+        {
+            var right = _userRepository.UserInfo.permissionInfo!.Rights!.Where(r => !string.IsNullOrEmpty(r.TaskId)).Select(r => r.TaskId).ToArray();
+            var userType = _userRepository.UserInfo.permissionInfo.Role!.UserType;
+            return new UserProfile()
+            {
+                CompName = _userRepository.CompAbbrName,
+                FullName = _userRepository.FullName,
+                Right = right,
+                //  Right = new string[]{"UOP0000"},
+                UserType = "S"
+                //  UserType = ""
+            };
         }
     }
 }

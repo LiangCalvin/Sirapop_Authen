@@ -1,4 +1,5 @@
 using IISAuthen.Models;
+using IISAuthen.Models.UserRegister;
 using IISAuthen.Services;
 using IISAuthen.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
@@ -27,6 +28,21 @@ namespace IISAuthen.Controllers
                 return Unauthorized();
 
             return Ok(new { Token = token });
+        }
+        [HttpGet("userprofile")]
+        public IActionResult UserProfile()
+        {
+            var result = _authService.UserProfile();
+            return Ok(result);
+        }
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] UserRegisterDto dto)
+        {
+            var result = await _authService.RegisterAsync(dto);
+            if (!result)
+                return BadRequest("Username already exists.");
+
+            return Ok("User registered successfully.");
         }
     }
 }
