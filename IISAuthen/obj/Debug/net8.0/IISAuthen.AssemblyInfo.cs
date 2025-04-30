@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("IISAuthen")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+154b9bc73d893dc0ff60f3eaaf21dc392241b30a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ac59be16efb87d9369b460ac17453affd396a4c8")]
 [assembly: System.Reflection.AssemblyProductAttribute("IISAuthen")]
 [assembly: System.Reflection.AssemblyTitleAttribute("IISAuthen")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
